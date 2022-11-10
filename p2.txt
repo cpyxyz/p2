@@ -1,0 +1,98 @@
+create table doctor(dssn varchar(10) primary key,dname varchar(15),speciality varchar(15),Experience int(3));
+
+create table patient(pssn varchar(10) primary key, pname varchar(10),paddress varchar(20),age int(3));
+
+create table pharma_co(pcname varchar(15) primary key,pcaddr varchar(10),pcphone bigint(10));
+
+create table drug(tradename varchar(20) primary key,formula varchar(12),pcname varchar(15),foreign key(pcname) references pharma_co(pcname));
+
+create table pharmacy(phname varchar(15) primary key,phaddr varchar(13),phphone bigint(10));
+
+create table sell(phname varchar(15),tradename varchar(20),price int(4),foreign key(phname) references pharmacy(phname),foreign key(tradename) references drug(tradename),primary key(phname,tradename));
+
+create table checks(dssn varchar(10),pssn varchar(10),foreign key(dssn) references doctor(dssn),foreign key(pssn) references patient(pssn),primary key(dssn,pssn));
+
+create table prescribe(dssn varchar(10),pssn varchar(10),tradename varchar(20), date date,quantity int(3), foreign key(dssn) references doctor(dssn), foreign key(pssn) references patient(pssn), foreign key(tradename) references drug(tradename), primary key(dssn,pssn,tradename));
+
+create table contract(pcname varchar(15),phname varchar(15),sdate date,ldate date,supervisor varchar(15),text varchar(15),foreign key(pcname) references pharma_co(pcname), foreign key(phname) references pharmacy(phname),primary key(pcname,phname));
+
+
+insert into doctor values("d01",'mgk', 'cardio', 15);
+insert into doctor values("d02",'anp', 'cardiologist', 5);
+insert into doctor values("d03",'som', 'pediatrician', 7);
+insert into doctor values("d04",'sohan', 'opthomologist', 3);
+
+insert into patient values('p01', 'ramesh', 'blr', 22);
+insert into patient values('p02', 'suresh', 'blr', 24);
+insert into patient values('p03', 'pranesh', 'blr', 29);
+insert into patient values('p04', 'balesh', 'blr', 32);
+
+insert into pharma_co values('cipla', 'mumbai', 9883378302);
+insert into pharma_co values('reddy', 'hydrabad', 9883378222);
+insert into pharma_co values('sunPharma', 'chenni', 9883378999);
+
+insert into pharmacy values('apollo', 'blr', 7883383020);
+insert into pharmacy values('medplus', 'blr', 7883383222);
+insert into pharmacy values('ramesh medicals', 'blr', 7883311122);
+insert into pharmacy values('suresh medicals', 'blr', 7883331122);
+
+insert into drug values('dolo650', 'formula7', 'cipla');
+insert into drug values('dolo', 'formula1', 'cipla');
+insert into drug values('crocin', 'formula2', 'reddy');
+insert into drug values('calpal', 'formula3', 'sunPharma');
+
+insert into checks values('d01', 'p01');
+insert into checks values('d02', 'p02');
+insert into checks values('d04', 'p01');
+
+insert into prescribe values('d01', 'p01', 'dolo', '2013-11-11', 5);
+insert into prescribe values('d02', 'p02', 'calpal', '2013-11-11', 5);
+insert into prescribe values('d01', 'p03', 'dolo650', '2013-05-11', 5);
+
+insert into sell values('apollo', 'dolo', 5);
+insert into sell values('medplus', 'calpal', 1);
+insert into sell values('ramesh medicals', 'crocin', 1);
+
+insert into contract values('cipla', 'apollo', '2020-10-10', '2023-10-10', 'supervisor1', 'text')
+insert into contract values('cipla', 'medplus', '2020-10-10', '2023-10-10', 'supervisor2', 'text');
+insert into contract values('cipla', 'ramesh medicals', '2018-10-10', '2023-10-10', 'supervisor2', 'text');
+insert into contract values('reddy', 'ramesh medicals', '2018-10-10', '2023-10-10', 'supervisor2', 'text');
+insert into contract values('reddy', 'suresh medicals', '2018-10-10', '2023-10-10', 'supervisor2', 'text');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2.1
+select p.* from patient p, checks c, doctor d where p.pssn = c.pssn and p.age = 22 and d.dssn = c.dssn and d.speciality = 'opthomologist';
+
+2.2
+select d.*, count(p.dssn) from doctor d, prescribe p where d.dssn = p.dssn and year(p.date) = '2013' group by d.dssn having count(p.dssn) > 1;
+
+2.3
+select * from doctor where Experience in(select max(Experience) from doctor);
+
+2.4
+select p.pcname from pharma_co p, pharmacy ph, contract c where p.pcname=c.pcname and ph.phname=c.phname and p.pcaddr=ph.phaddr group by p.pcname having count(c.supervisor)>=2;
+
+
+2.5
+select pcname, count(pcname) from drug d group by pcname having count(pcname)=1;
+
+
+2.6
+select d.* from drug d, pharmacy p, sell s where p.phname = s.phname and d.tradename = s.tradename;
+
+
+
+
